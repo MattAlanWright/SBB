@@ -4,7 +4,7 @@
 #include <numeric>
 #include <math.h>
 
-#include "Symbiont.h"
+#include "Symbiont.hpp"
 
 float sigmoid(float z) {
    return 1.0 / (1.0 + exp(-z));
@@ -80,7 +80,7 @@ void Symbiont::executeInstruction(Instruction& instruction, float input[NUM_INPU
 
     int mode         = instruction.getMode();
     int target_index = instruction.getTarget();
-    int op_code      = instruction.getOp();
+    int op_code      = instruction.getOp
     int source_index = instruction.getSource();
 
     source_index %= source_mod_value[mode];
@@ -112,26 +112,4 @@ void Symbiont::executeInstruction(Instruction& instruction, float input[NUM_INPU
             break;
     }
     registers[target_index] = std::clamp(val, MIN_REGISTER_VAL, MAX_REGISTER_VAL);
-}
-
-
-void getTournamentCompetitors(std::array<int, 4>& competitor_indices, int population_size) {
-
-    // Get 4 random competitors
-    competitor_indices[0] = Random::get<int>(0, population_size - 1);
-
-    do {
-        competitor_indices[1] = Random::get<int>(0, population_size -1);
-    } while (competitor_indices[0] == competitor_indices[1]);
-
-    do {
-        competitor_indices[2] = Random::get<int>(0, population_size - 1);
-    } while (competitor_indices[2] == competitor_indices[0] ||
-             competitor_indices[2] == competitor_indices[1]);
-
-    do {
-        competitor_indices[3] = Random::get<int>(0, population_size - 1);
-    } while (competitor_indices[3] == competitor_indices[0] ||
-             competitor_indices[3] == competitor_indices[1] ||
-             competitor_indices[3] == competitor_indices[2]);
 }

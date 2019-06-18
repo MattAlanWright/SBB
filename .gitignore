@@ -1,2 +1,5 @@
 # Objct files
 *.o
+
+# Precompiled headers
+*.gch

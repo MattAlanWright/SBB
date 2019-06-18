@@ -1,6 +1,10 @@
 #include "Environment.hpp"
 
-#include <math.h>
+#include <cmath>
+
+// Effolkronium random library
+#include "random.hpp"
+using Random = effolkronium::random_static;
 
 #define PROB_SYMBIONT_ADDITION      0.2
 #define PROB_SYMBIONT_REMOVAL       0.2
@@ -131,7 +135,7 @@ void ClassificationEnvironment::evaluateHosts() {
                 denominator += G[j][k];
             }
 
-            float fitness += pow(G[i][k] / denominator, 3);
+            float fitness += std::pow(G[i][k] / denominator, 3);
         }
 
         host_pop[i].fitness = temp;
@@ -158,17 +162,22 @@ void ClassificationEnvironment::removeHosts() {
         return a.fitness > b.fitness;
     });
 
-    // Remove the p_gap lowest ones
+    // Before removing the h_gap lowest performing Symbionts,
+    // ensure the Symbionts' ref counts are decremented.
     h_keep = h_size - h_gap
     for( int i = h_keep; i < h_size; i++ ) {
-
+        host_pop[i].decrementSymbiontRefCounts()
     }
 
+    // Remove the h_gap lowest performing hosts
+    host_pop.erase(host_pop.begin() + h_keep, host_pop.end());
 }
 
 
-
-
-
-
-
+ClassificationEnvironment::cleanSymbiontPopulation() {
+    Host::resetSymbiontPopulationRefs();
+    for(Host& h : host_pop) {
+        h.updateSymbiontRefs();
+    }
+    Host::cleanSymbiontPopulation();
+}

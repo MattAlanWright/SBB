@@ -20,7 +20,10 @@ public:
     std::vector<Point> point_pop;
     std::vector<Host>  host_pop;
 
-    // Outcome matrix. Recalculated each training round
+    // Core training alorithm
+    void train();
+
+    // Outcome matrix. Recalculated each generation
     std::vector< std::vector<int> > G;
 
     // Initialization
@@ -41,6 +44,9 @@ public:
     // Remove lowest performing individuals
     void removeHosts();
     void removePoints();
+
+    // Clean up Symbiont population
+    void cleanSymbiontPopulation();
 
     int num_classes;
     int p_size;

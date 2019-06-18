@@ -34,7 +34,7 @@ changing them back if we need to re-use the original values. Make the move to
 templated struct. It will look gross but be very easy to change and experiment with.
 
 In general, the operation for getting a specific component out of the packed 32-bit
-integer is: shift the component byte to the LSB position and performa a bitwise AND
+integer is: shift the component byte to the LSB position and perform a bitwise AND
 to retrieve valid bits.
 */
 struct Instruction {

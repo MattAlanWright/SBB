@@ -11,8 +11,6 @@ public:
     std::vector<float> X;
     int                y;
 
-    static std::vector<Point> P;
-
     float fitness;
 }
 

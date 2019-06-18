@@ -2,6 +2,7 @@
 
 // Effolkronium random library
 #include "random.hpp"
+using Random = effolkronium::random_static;
 
 Dataset::Dataset(std::vector< std::vector<float> > X,
                  std::vector<int>                  y,
@@ -54,7 +55,3 @@ void Dataset::insertPoint(Point p) {
     dataset[p.y].push_back(p);
 
 }
-
-
-
-

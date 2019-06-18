@@ -4,15 +4,16 @@
 
 // Effolkronium random library
 #include "random.hpp"
+using Random = effolkronium::random_static;
 
 // Symbiont population
 Host::std::vector<Symbiont*> S;
 Host::std::vector<Symbiont*> S_prime;
 
 
-Host::Host(int num_actions)
-    : num_actions(num_actions),
-      fitness(0.0)
+Host::Host(int num_actions) :
+    num_actions(num_actions),
+    fitness(0.0)
 {
     max_num_symbionts = Random::get<int>(0, MAX_SYMBIONTS_PER_HOST);
     symbionts.reserve(max_num_symbionts);
@@ -20,20 +21,7 @@ Host::Host(int num_actions)
 }
 
 
-void Host::operator= (const Host &other) {
-
-    num_actions = other.num_actions;
-    max_num_symbionts = other.max_num_symbionts;
-
-    symbionts = other.symbionts;
-
-    for( auto it = symbionts.begin(); it != symbionts.end(); it++ ) {
-        (*it)->incrementReferenceCount();
-    }
-}
-
-
-void Host::initializeSymbionts(bool do_add_to_S) {
+void Host::initializeSymbionts() {
 
     // Create two random and unique actions
     int a1, a2;
@@ -46,21 +34,12 @@ void Host::initializeSymbionts(bool do_add_to_S) {
     Symbiont* s1 = new Symbiont(a1);
     Symbiont* s2 = new Symbiont(a2);
 
-    // Set their reference counts to 1
-    s1->incrementReferenceCount();
-    s2->incrementReferenceCount();
-
     // Add to the host's list and the main population
     symbionts.push_back(s1);
     symbionts.push_back(s2);
 
-    if(do_add_to_S) {
-        S.push_back(s1);
-        S.push_back(s2);
-    } else {
-        S_prime.push_back(s1);
-        S_prime.push_back(s2);
-    }
+    S.push_back(s1);
+    S.push_back(s2);
 }
 
 
@@ -110,7 +89,6 @@ void Host::removeSymbionts(float prob_symbiont_removal) {
 
         int sym_index = Random::get<int>(0, symbionts.size());
         Symbiont *s = symbionts[sym_index];
-        s->decrementReferenceCount();
         delete symbionts[sym_index];
         b *= prob_symbiont_removal;
     }
@@ -125,7 +103,6 @@ void Host::addSymbionts(float prob_symbiont_addition) {
         int pop_index = Random::get<int>(0, S.size());
         Symbiont *s = S[pop_index];
         symbionts.push_back(s);
-        s->incrementReferenceCount();
 
         b *= prob_symbiont_addition;
     }
@@ -150,12 +127,26 @@ int Host::act(const Point& p) {
 }
 
 
+void Host::updateSymbiontRefs() {
+    for(Symbiont * s : symbionts) {
+        s->is_referenced = true;
+    }
+}
+
+
+void Host::resetSymbiontPopulationRefs() {
+    for(Symbiont * s : S) {
+        s->is_referenced = false;
+    }
+}
+
+
 // Remove all un-used Symbionts from the main population
 void Host::cleanSymbiontPopulation() {
 
     auto it = S.begin();
     while( it != S.end() ) {
-        if( (*it)->getReferenceCount() == 0 ) {
+        if( (*it)->is_referenced == false ) {
             delete *it;
             it = S.erase(it);
         } else {
@@ -173,14 +164,3 @@ void Host::mergeSymbiontGenerations() {
 
     S_prime.clear();
 }
-
-
-
-
-
-
-
-
-
-
-
