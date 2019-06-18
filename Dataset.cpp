@@ -43,7 +43,7 @@ Point Dataset::getRandomExemplar() {
     Point p = dataset[c][random_point_index];
 
     // Remove the Point from the dataset
-    dataset[c].erase(random_point_index);
+    dataset[c].erase(dataset.begin() + random_point_index);
 
     return p;
 }

@@ -6,14 +6,17 @@
 #include "random.hpp"
 
 // Symbiont population
-Host::std::vector<Symbiont*> S(MAX_SYMBIONT_POP_SIZE);
+Host::std::vector<Symbiont*> S;
+Host::std::vector<Symbiont*> S_prime;
 
 
 Host::Host(int num_actions)
-    : num_actions(num_actions)
+    : num_actions(num_actions),
+      fitness(0.0)
 {
     max_num_symbionts = Random::get<int>(0, MAX_SYMBIONTS_PER_HOST);
     symbionts.reserve(max_num_symbionts);
+    bids.reserve(max_num_symbionts);
 }
 
 
@@ -30,7 +33,7 @@ void Host::operator= (const Host &other) {
 }
 
 
-void Host::initializeSymbionts() {
+void Host::initializeSymbionts(bool do_add_to_S) {
 
     // Create two random and unique actions
     int a1, a2;
@@ -51,18 +54,25 @@ void Host::initializeSymbionts() {
     symbionts.push_back(s1);
     symbionts.push_back(s2);
 
-    S.push_back(s1);
-    S.push_back(s2);
+    if(do_add_to_S) {
+        S.push_back(s1);
+        S.push_back(s2);
+    } else {
+        S_prime.push_back(s1);
+        S_prime.push_back(s2);
+    }
 }
 
 
-void Host::mutateHost(float prob_symbiont_mutation) {
+void Host::mutateHost(float prob_symbiont_mutation, float prob_symbtiont_action_mutation) {
 
     bool symbiont_mutated = false;
 
     while( !symbiont_mutated ) {
         for( auto it = symbionts.begin(); it != symbionts.end(); it++ ) {
-            if( Random::get<float>(0.0, 1.0) >= prob_symbiont_mutation ) continue;
+            if( Random::get<float>(0.0, 1.0) >= prob_symbiont_mutation ) {
+                continue;
+            }
 
             Symbiont* s       = (*it);
             Symbiont* s_prime = new Symbiont();
@@ -76,22 +86,19 @@ void Host::mutateHost(float prob_symbiont_mutation) {
             // Mutate s_prime
             s_prime->mutate();
 
+            // Add new Symbiont to S_prime population
+            S_prime.push_back(s_prime);
+
             symbiont_mutated = true;
+
+            // Possibly also alter Symbtiont's action
+            if( Random::get<float>(0.0, 1.0) >= prob_symbtiont_action_mutation ) {
+                continue;
+            }
+
+            // Change Symbiont's action
+            s_prime->mutateAction(num_actions);
         }
-    }
-}
-
-
-void Host::addSymbionts(float prob_symbiont_addition) {
-
-    float b = 1.0;
-    while( b > Random::get<float>(0.0, 1.0) && symbionts.size() < max_num_symbionts ) {
-        int pop_index = Random::get<int>(0, S.size());
-        Symbiont *s = S[pop_index];
-        symbionts.push_back(s);
-        s->incrementReferenceCount();
-
-        b *= prob_symbiont_addition;
     }
 }
 
@@ -111,6 +118,38 @@ void Host::removeSymbionts(float prob_symbiont_removal) {
 }
 
 
+void Host::addSymbionts(float prob_symbiont_addition) {
+
+    float b = 1.0;
+    while( b > Random::get<float>(0.0, 1.0) && symbionts.size() < max_num_symbionts ) {
+        int pop_index = Random::get<int>(0, S.size());
+        Symbiont *s = S[pop_index];
+        symbionts.push_back(s);
+        s->incrementReferenceCount();
+
+        b *= prob_symbiont_addition;
+    }
+}
+
+
+int Host::act(const Point& p) {
+
+    // Allow each Symbiont to act on the data point
+    bids.clear();
+    for(int i = 0; i < symbionts.size(); i++) {
+        float bid = symbionts[i].bid(p.X);
+        bids.push_back(bid);
+    }
+
+    // Get the highest bidder
+    auto result = std::max_element(bids.begin(), bids.end());
+    auto bidder = std::distance(bids.begin(), result);
+
+    // Get the action of the highest bidder
+    return symbionts[bidder].action;
+}
+
+
 // Remove all un-used Symbionts from the main population
 void Host::cleanSymbiontPopulation() {
 
@@ -123,6 +162,16 @@ void Host::cleanSymbiontPopulation() {
             it++;
         }
     }
+}
+
+
+// Remove all un-used Symbionts from the main population
+void Host::mergeSymbiontGenerations() {
+
+    // Merge S_prime into S and then clear out S_prime
+    S.insert(S.end(), S_prime.begin(), S_prime.end());
+
+    S_prime.clear();
 }
 
 

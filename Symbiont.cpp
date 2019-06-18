@@ -55,6 +55,15 @@ void Symbiont::mutate() {
 }
 
 
+void Symbiont::mutateAction(int num_actions) {
+    int new_action = action;
+    while(new_action == action) {
+        new_action = Random::get<int>(0, num_actions);
+    }
+    action = new_action;
+}
+
+
 float Symbiont::bid(float input[NUM_INPUTS]) {
     // Zero out registers
     for(int i = 0; i < NUM_REGISTERS; i++) registers[i] = 0.0;

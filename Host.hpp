@@ -16,19 +16,25 @@ public:
 
     void operator= (const Host &other);
 
-    void initializeSymbionts();
-    void addSymbionts(float prob_sym_addition);
+    void initializeSymbionts(bool do_add_to_S = false);
+    void addSymbionts(float prob_sym_addition, bool do_add_to_S = false);
 
-    static void cleanSymbiontPopulation();
+    int act(const Point& p);
 
-private:
+    float fitness;
+
     int num_actions;
+
+    std::vector<float> bids;
 
     int max_num_symbionts;
     std::vector<Symbiont*> symbionts;
 
-    // Main Symbiont population
+    // Static symbiont populations
     static std::vector<Symbiont*> S;
+    static std::vector<Symbiont*> S_prime;
+    static void cleanSymbiontPopulation();
+    static void mergeSymbiontGenerations();
 }
 
 

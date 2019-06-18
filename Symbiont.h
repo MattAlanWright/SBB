@@ -36,9 +36,10 @@ class Symbiont {
 
         // Variation operations
         void mutate();
+        void mutateAction(int num_actions);
 
         // Evaluation and training methods
-        float bid(float input[NUM_INPUTS]);
+        float bid(std::vector<float>& input);
 
         void printInstructions(int num = -1);
         static void printInstruction(Instruction &instruction);
@@ -47,8 +48,6 @@ class Symbiont {
         inline void incrementReferenceCount() { reference_count++; };
         inline void decrementReferenceCount() { if( reference_count > 0 ) reference_count--; };
 
-    // Private class methods
-    private:
         void initializeInstructions();
         void executeInstruction(Instruction& instruction, float input[NUM_INPUTS]);
 

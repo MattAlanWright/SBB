@@ -12,6 +12,8 @@ public:
     int                y;
 
     static std::vector<Point> P;
+
+    float fitness;
 }
 
 #endif //_POINT_HPP
