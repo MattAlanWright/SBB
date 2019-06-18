@@ -6,7 +6,7 @@
 class Point {
 
 public:
-    Point(std::vector<float>& features, int label);
+    Point(std::vector<float> &features, int label);
 
     std::vector<float> X;
     int                y;

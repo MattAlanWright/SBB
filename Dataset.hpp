@@ -8,8 +8,8 @@
 class Dataset {
 
 public:
-    Dataset(std::vector< std::vector<float> > X,
-            std::vector<int>                  y,
+    Dataset(const std::vector< std::vector<float> > &X,
+            const std::vector<int>                  &y,
             int   num_classes,
             int   num_features,
             int   num_samples);
