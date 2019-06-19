@@ -11,6 +11,8 @@ class ClassificationEnvironment {
 
 public:
     ClassificationEnvironment(int num_classes,
+                              int num_features,
+                              int num_samples,
                               int p_size,
                               int p_gap,
                               int h_size,
@@ -21,7 +23,7 @@ public:
     std::vector<Host>  host_pop;
 
     // Core training alorithm
-    void train();
+    void train(int num_generations);
 
     // Outcome matrix. Recalculated each generation
     std::vector< std::vector<int> > G;

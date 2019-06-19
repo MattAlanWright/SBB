@@ -22,8 +22,9 @@ const int Symbiont::source_mod_value[2] = {
 
 Symbiont::Symbiont(int action)
     : action(action),
-      reference_count(0),
-      max_source_range(std::max(NUM_REGISTERS, NUM_INPUTS))
+      is_referenced(false),
+      max_source_range(std::max(NUM_REGISTERS, NUM_INPUTS)),
+      registers(NUM_REGISTERS)
 {
     // If action not specified, select at random
     if( action == -1 ) action = Random::get<int>(0, NUM_CLASSES);
@@ -46,7 +47,7 @@ void Symbiont::initializeInstructions() {
 
 
 void Symbiont::mutate() {
-    if(Random::get<float>(0.0f, 1.0f) > mutation_rate) {
+    if(Random::get<float>(0.0f, 1.0f) > MUTATION_RATE) {
         return;
     }
 
@@ -64,7 +65,7 @@ void Symbiont::mutateAction(int num_actions) {
 }
 
 
-float Symbiont::bid(float input[NUM_INPUTS]) {
+float Symbiont::bid(const std::vector<float>& input) {
     // Zero out registers
     for(int i = 0; i < NUM_REGISTERS; i++) registers[i] = 0.0;
 
@@ -76,21 +77,16 @@ float Symbiont::bid(float input[NUM_INPUTS]) {
 }
 
 
-void Symbiont::executeInstruction(Instruction& instruction, float input[NUM_INPUTS]) {
+void Symbiont::executeInstruction(Instruction& instruction, const std::vector<float>& input) {
 
     int mode         = instruction.getMode();
     int target_index = instruction.getTarget();
-    int op_code      = instruction.getOp
+    int op_code      = instruction.getOp();
     int source_index = instruction.getSource();
 
     source_index %= source_mod_value[mode];
 
-    float * source;
-    if(mode == INST_REGISTER_MODE) {
-        source = registers;
-    } else {
-        source = input;
-    }
+    const std::vector<float> &source = (mode == INST_REGISTER_MODE) ? registers : input;
 
     float val;
     switch(op_code) {
@@ -104,12 +100,10 @@ void Symbiont::executeInstruction(Instruction& instruction, float input[NUM_INPU
             val = registers[target_index] * source[source_index];
             break;
         case INST_DIVISION:
-            if( source[source_index] < MIN_SOURCE_VAL ) {
-                val = SAFE_DIV_RESULT;
-            } else {
-                val = registers[target_index] / source[source_index];
-            }
+            val = registers[target_index] / 2.0;
             break;
     }
+
+    // Safeguard against overflows, NaNa, Infs, etc.
     registers[target_index] = std::clamp(val, MIN_REGISTER_VAL, MAX_REGISTER_VAL);
 }

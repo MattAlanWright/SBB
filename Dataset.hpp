@@ -16,6 +16,7 @@ public:
 
     int num_classes;
     int num_features;
+    int num_samples;
 
     // Multi-dimensional vector, indexed into as:
     //
@@ -25,6 +26,6 @@ public:
 
     Point getRandomExemplar();
     void insertPoint(Point p);
-}
+};
 
 #endif //_DATA_HPP

@@ -11,26 +11,56 @@ using Random = effolkronium::random_static;
 #define PROB_SYMBIONT_MUTATION      0.1
 #define PROB_ACTION_MUTATION        0.1
 
-ClassificationEnvironment::ClassificationEnvironment(
-    int num_classes,
-    int p_size,
-    int p_gap,
-    int h_size,
-    int h_gap)
-    : num_classes(num_classes),
-      p_size(p_size),
-      p_gap(p_gap),
-      h_size(h_size),
-      h_gap(h_gap)
+
+ClassificationEnvironment::ClassificationEnvironment(int num_classes,
+                                                     int num_features,
+                                                     int num_samples,
+                                                     int p_size,
+                                                     int p_gap,
+                                                     int h_size,
+                                                     int h_gap,
+                                                     std::vector<std::vector<float>> &X,
+                                                     std::vector<float>              &y) :
+
+    num_classes(num_classes),
+    p_size(p_size),
+    p_gap(p_gap),
+    h_size(h_size),
+    h_gap(h_gap),
+    dataset(X, y, num_classes, num_features, num_samples)
 {
     // Reserve space for outcome matrix
+    G.resize(h_size);
     for(int i = 0; i < h_size; i++) {
-        G[i].reserve(p_size);
+        G[i].resize(p_size);
     }
 
     initializeHostPop();
     initializePointPop();
 }
+
+
+void ClassificationEnvironment::train(int num_generations) {
+
+    for(int t = 0; t < num_generations; t++) {
+
+        // Generate new individuals
+        generatePoints();
+        generateHosts();
+
+        // Evaluate all hosts on all points
+        calculateOutcomeMatrix();
+        evaluatePoints();
+        evaluateHosts();
+
+        // Remove low-performing points and hosts
+        removeHosts();
+        removePoints();
+
+        std::cout << '\r' << std::flush << "Best fitness: " << host_pop[0].fitness;
+    }
+}
+
 
 void ClassificationEnvironment::initializeHostPop() {
 
@@ -51,6 +81,7 @@ void ClassificationEnvironment::initializeHostPop() {
         h.addSymbionts(PROB_SYMBIONT_ADDITION, true);
     }
 }
+
 
 void ClassificationEnvironment::initializePointPop() {
 
@@ -164,9 +195,9 @@ void ClassificationEnvironment::removeHosts() {
 
     // Before removing the h_gap lowest performing Symbionts,
     // ensure the Symbionts' ref counts are decremented.
-    h_keep = h_size - h_gap
+    h_keep = h_size - h_gap;
     for( int i = h_keep; i < h_size; i++ ) {
-        host_pop[i].decrementSymbiontRefCounts()
+        host_pop[i].decrementSymbiontRefCounts();
     }
 
     // Remove the h_gap lowest performing hosts

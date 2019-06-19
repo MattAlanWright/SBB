@@ -6,12 +6,12 @@
 class Point {
 
 public:
-    Point(std::vector<float> &features, int label);
+    Point(const std::vector<float> &features, const int &label);
 
     std::vector<float> X;
     int                y;
 
     float fitness;
-}
+};
 
 #endif //_POINT_HPP

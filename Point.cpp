@@ -1,6 +1,6 @@
 #include "Point.hpp"
 
-Point::Point(std::vector<float> &features, int label) {
+Point::Point(const std::vector<float> &features, const int &label) {
     X       = features;
     y       = label;
     fitness = 0.0;

@@ -4,15 +4,16 @@
 #include "random.hpp"
 using Random = effolkronium::random_static;
 
-Dataset::Dataset(std::vector< std::vector<float> > &X,
-                 std::vector<int>                  &y,
+Dataset::Dataset(const std::vector< std::vector<float> > &X,
+                 const std::vector<int>                  &y,
                  int   num_classes,
                  int   num_features,
                  int   num_samples)
     : num_classes(num_classes),
-      num_features(num_features)
+      num_features(num_features),
+      num_samples(num_samples)
 {
-    dataset.reserve(num_samples);
+    dataset.resize(num_samples);
 
     for(int i = 0; i < num_samples; i++) {
         // y[i] = Integer class label
@@ -44,7 +45,7 @@ Point Dataset::getRandomExemplar() {
     Point p = dataset[c][random_point_index];
 
     // Remove the Point from the dataset
-    dataset[c].erase(dataset.begin() + random_point_index);
+    dataset[c].erase(dataset[c].begin() + random_point_index);
 
     return p;
 }

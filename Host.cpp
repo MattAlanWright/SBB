@@ -1,14 +1,14 @@
-#include "Host.h"
+#include "Host.hpp"
 
-#include "Symbiont.h"
+#include "Symbiont.hpp"
 
 // Effolkronium random library
 #include "random.hpp"
 using Random = effolkronium::random_static;
 
 // Symbiont population
-Host::std::vector<Symbiont*> S;
-Host::std::vector<Symbiont*> S_prime;
+std::vector<Symbiont*> Host::S;
+std::vector<Symbiont*> Host::S_prime;
 
 
 Host::Host(int num_actions) :
@@ -48,19 +48,20 @@ void Host::mutateHost(float prob_symbiont_mutation, float prob_symbtiont_action_
     bool symbiont_mutated = false;
 
     while( !symbiont_mutated ) {
-        for( auto it = symbionts.begin(); it != symbionts.end(); it++ ) {
+        for( int i = 0; i < symbionts.size(); i++ ) {
+        //for( auto it = symbionts.begin(); it != symbionts.end(); it++ ) {
             if( Random::get<float>(0.0, 1.0) >= prob_symbiont_mutation ) {
                 continue;
             }
 
-            Symbiont* s       = (*it);
+            Symbiont* s       = symbionts[i];
             Symbiont* s_prime = new Symbiont();
 
             // Copy original symbiont
             *s_prime = *s;
 
             // Change host's pointer to s_prime
-            (*it) = s_prime;
+            symbionts[i] = s_prime;
 
             // Mutate s_prime
             s_prime->mutate();
@@ -114,7 +115,7 @@ int Host::act(const Point& p) {
     // Allow each Symbiont to act on the data point
     bids.clear();
     for(int i = 0; i < symbionts.size(); i++) {
-        float bid = symbionts[i].bid(p.X);
+        float bid = symbionts[i]->bid(p.X);
         bids.push_back(bid);
     }
 
@@ -123,7 +124,7 @@ int Host::act(const Point& p) {
     auto bidder = std::distance(bids.begin(), result);
 
     // Get the action of the highest bidder
-    return symbionts[bidder].action;
+    return symbionts[bidder]->action;
 }
 
 
