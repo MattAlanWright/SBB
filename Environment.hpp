@@ -16,7 +16,9 @@ public:
                               int p_size,
                               int p_gap,
                               int h_size,
-                              int h_gap);
+                              int h_gap,
+                              std::vector<std::vector<float>> &X,
+                              std::vector<int>                &y);
 
     Dataset            dataset;
     std::vector<Point> point_pop;
@@ -37,7 +39,7 @@ public:
     void generatePoints();
 
     // Let the Hosts bid on the Points and store the results
-    void calculateOutcome();
+    void calculateOutcomeMatrix();
 
     // Evaluation methods
     void evaluateHosts();
@@ -55,7 +57,6 @@ public:
     int p_gap;
     int h_size;
     int h_gap;
-
-}
+};
 
 #endif //_ENVIRONMENT_HPP

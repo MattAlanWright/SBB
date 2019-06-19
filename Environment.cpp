@@ -20,7 +20,7 @@ ClassificationEnvironment::ClassificationEnvironment(int num_classes,
                                                      int h_size,
                                                      int h_gap,
                                                      std::vector<std::vector<float>> &X,
-                                                     std::vector<float>              &y) :
+                                                     std::vector<int>                &y) :
 
     num_classes(num_classes),
     p_size(p_size),
@@ -68,9 +68,9 @@ void ClassificationEnvironment::initializeHostPop() {
     host_pop.reserve(h_size);
 
     // 2. Create h_size - h_gap hosts
-    for(int i = 0 i < (h_size - h_gap); i++) {
+    for(int i = 0; i < (h_size - h_gap); i++) {
         Host h(num_classes);
-        h.initializeSymbionts(true);
+        h.initializeSymbionts();
         host_pop.push_back(h);
     }
 
@@ -78,7 +78,7 @@ void ClassificationEnvironment::initializeHostPop() {
     // Step 2 must have already taken place to ensure the full
     // Symbiont population exists.
     for(Host& h : host_pop) {
-        h.addSymbionts(PROB_SYMBIONT_ADDITION, true);
+        h.addSymbionts(PROB_SYMBIONT_ADDITION);
     }
 }
 
@@ -97,7 +97,7 @@ void ClassificationEnvironment::generateHosts() {
     for( int i = 0; i < h_gap; i++ ) {
 
         // Choose a random host
-        random_host_index = Random::get<int>(0, h_size);
+        int random_host_index = Random::get<int>(0, h_size);
 
         // Create a copy of the Host with references to Symbionts
         Host h = host_pop[random_host_index];
@@ -127,7 +127,7 @@ void ClassificationEnvironment::calculateOutcomeMatrix() {
             Point& p        = point_pop[p_index];
             int    h_action = host_pop[h_index].act(p);
 
-            if( h_action == label ) {
+            if( h_action == p.y ) {
                 G[h_index][p_index] = 1;
             } else {
                 G[h_index][p_index] = 0;
@@ -166,10 +166,10 @@ void ClassificationEnvironment::evaluateHosts() {
                 denominator += G[j][k];
             }
 
-            float fitness += std::pow(G[i][k] / denominator, 3);
+            fitness += std::pow(G[i][k] / denominator, 3);
         }
 
-        host_pop[i].fitness = temp;
+        host_pop[i].fitness = fitness;
     }
 }
 
@@ -193,19 +193,13 @@ void ClassificationEnvironment::removeHosts() {
         return a.fitness > b.fitness;
     });
 
-    // Before removing the h_gap lowest performing Symbionts,
-    // ensure the Symbionts' ref counts are decremented.
-    h_keep = h_size - h_gap;
-    for( int i = h_keep; i < h_size; i++ ) {
-        host_pop[i].decrementSymbiontRefCounts();
-    }
-
     // Remove the h_gap lowest performing hosts
+    int h_keep = h_size - h_gap;
     host_pop.erase(host_pop.begin() + h_keep, host_pop.end());
 }
 
 
-ClassificationEnvironment::cleanSymbiontPopulation() {
+void ClassificationEnvironment::cleanSymbiontPopulation() {
     Host::resetSymbiontPopulationRefs();
     for(Host& h : host_pop) {
         h.updateSymbiontRefs();

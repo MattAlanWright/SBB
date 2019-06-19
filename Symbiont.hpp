@@ -16,11 +16,8 @@ using Random = effolkronium::random_static;
 #define NUM_INPUTS                  4
 #define NUM_CLASSES                 3
 #define NUM_REGISTERS               8
-#define MIN_SOURCE_VAL              0.00001
 #define MIN_REGISTER_VAL           -10.0e3f
 #define MAX_REGISTER_VAL            10.0e3f
-#define MIN_ERROR_VAL               0.0f
-#define MAX_ERROR_VAL               10.0e3f
 #define NUM_INITIAL_INSTRUCTIONS    (NUM_REGISTERS * NUM_REGISTERS)
 #define MIN_NUM_INSTRUCTIONS        16
 #define MAX_NUM_INSTRUCTIONS        1024
