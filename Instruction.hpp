@@ -17,6 +17,10 @@ enum InstructionOperation {
     INST_SUBTRACTION,
     INST_MULTIPLICATION,
     INST_DIVISION,
+    INST_COSINE,
+    INST_LOG,
+    INST_EXPONENTIAL,
+    INST_CONDITIONAL,
     INST_NUM_OPERATIONS
 };
 
@@ -49,8 +53,8 @@ struct Instruction {
 
     static const unsigned int mode_mask    = 0b00000001;
     static const unsigned int target_mask  = 0b00000111;
-    static const unsigned int op_mask      = 0b00000011;
-    static const unsigned int source_mask  = 0b00000111;
+    static const unsigned int op_mask      = 0b00000111;
+    static const unsigned int source_mask  = 0b00000011;
 
     static const unsigned int valid_bits_mask = (mode_mask << mode_shift)     |
                                                 (target_mask << target_shift) |
@@ -93,11 +97,11 @@ struct Instruction {
 // chance of being modified.
 // - Bit 24        = Mode
 // - Bits 16 to 18 = Target
-// - Bits 8 to 9   = Operation
+// - Bits 8 to 10  = Operation
 // - Bits 0 to 2   = Source
 const std::initializer_list<int> Instruction::valid_bits = {
-     0,  1,  2,  0,  1,  2,
-     8,  9,  8,  9,  8,  9,
+     0,  1,  0,  1,  0,  1,
+     8,  9, 10,  8,  9, 10,
     16, 17, 18, 16, 17, 18,
     24, 24, 24, 24, 24, 24
 };

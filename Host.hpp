@@ -4,6 +4,11 @@
 #define MAX_SYMBIONTS_PER_HOST 64
 #define MAX_SYMBIONT_POP_SIZE  1024
 
+#define PROB_SYMB_DEL_INST     0.1
+#define PROB_SYMB_ADD_INST     0.1
+#define PROB_SYMB_MUT_INST     0.1
+#define PROB_SYMB_SWP_INST     0.1
+
 #include "Symbiont.hpp"
 #include "Point.hpp"
 

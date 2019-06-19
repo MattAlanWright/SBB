@@ -2,7 +2,7 @@
 #include <array>
 #include <functional>
 #include <numeric>
-#include <math.h>
+#include <cmath>
 
 #include "Symbiont.hpp"
 
@@ -10,21 +10,11 @@ float sigmoid(float z) {
    return 1.0 / (1.0 + exp(-z));
 }
 
-// Modulo operands. The modulo operation is always performed on the source
-// index, which is always between 0 and max(NUM_INPUTS, NUM_REGISTERS).
-// This ensures that the index is always within the bounds of what we're
-// indexing into.
-const int Symbiont::source_mod_value[2] = {
-    NUM_REGISTERS,
-    NUM_INPUTS
-};
-
-
 Symbiont::Symbiont(int action)
     : action(action),
       is_referenced(false),
-      max_source_range(std::max(NUM_REGISTERS, NUM_INPUTS)),
-      registers(NUM_REGISTERS)
+      registers(NUM_REGISTERS),
+      source_mod_value {NUM_REGISTERS, NUM_INPUTS}
 {
     // If action not specified, select at random
     if( action == -1 ) action = Random::get<int>(0, NUM_CLASSES);
@@ -46,13 +36,67 @@ void Symbiont::initializeInstructions() {
  }
 
 
-void Symbiont::mutate() {
-    if(Random::get<float>(0.0f, 1.0f) > MUTATION_RATE) {
+void Symbiont::mutate(float prob_delete,
+                      float prob_add,
+                      float prob_mutate,
+                      float prob_swap)
+{
+    deleteRandomInstruction(prob_delete);
+    addRandomInstruction(prob_add);
+    mutateRandomInstruction(prob_mutate);
+    swapRandomInstructions(prob_swap);
+
+}
+
+
+void Symbiont::deleteRandomInstruction(float prob_delete) {
+    if( Random::get<float>(0.0, 1.0) > prob_delete ) {
         return;
     }
 
-    int instruction_to_mutate = Random::get<int>(0, instructions.size());
-    instructions[instruction_to_mutate].toggleRandomBit();
+    int random_instruction_index = Random::get<int>(0, instructions.size());
+    instructions.erase(instructions.begin() + random_instruction_index);
+}
+
+
+void Symbiont::addRandomInstruction(float prob_add) {
+    if( Random::get<float>(0.0, 1.0) > prob_add ) {
+        return;
+    }
+
+    Instruction new_instruction;
+    new_instruction.randomize();
+
+    int random_instruction_index = Random::get<int>(0, instructions.size());
+    instructions.insert(instructions.begin() + random_instruction_index, new_instruction);
+}
+
+
+void Symbiont::mutateRandomInstruction(float prob_mutate) {
+    if( Random::get<float>(0.0, 1.0) > prob_mutate ) {
+        return;
+    }
+
+    int random_instruction_index = Random::get<int>(0, instructions.size());
+
+    instructions[random_instruction_index].toggleRandomBit();
+}
+
+
+void Symbiont::swapRandomInstructions(float prob_swap) {
+    if( Random::get<float>(0.0, 1.0) > prob_swap ) {
+        return;
+    }
+
+    int i1, i2;
+    i1 = i2 = Random::get<int>(0, instructions.size());
+    while(i1 == i2) {
+        i2 = Random::get<int>(0, instructions.size());
+    }
+
+    Instruction temp = instructions[i1];
+    instructions[i1] = instructions[i2];
+    instructions[i2] = temp;
 }
 
 
@@ -102,8 +146,22 @@ void Symbiont::executeInstruction(Instruction& instruction, const std::vector<fl
         case INST_DIVISION:
             val = registers[target_index] / 2.0;
             break;
+        case INST_COSINE:
+            val = std::cos(source[target_index]);
+            break;
+        case INST_LOG:
+            val = std::log(source[target_index]);
+            break;
+        case INST_EXPONENTIAL:
+            val = std::exp(source[target_index]);
+            break;
+        case INST_CONDITIONAL:
+            if( registers[target_index] < source[source_index]) {
+                registers[target_index] = -registers[target_index];
+            }
+            break;
     }
 
     // Safeguard against overflows, NaNa, Infs, etc.
-    registers[target_index] = std::clamp(val, MIN_REGISTER_VAL, MAX_REGISTER_VAL);
+    //registers[target_index] = std::clamp(val, MIN_REGISTER_VAL, MAX_REGISTER_VAL);
 }

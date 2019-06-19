@@ -21,8 +21,6 @@ using Random = effolkronium::random_static;
 #define NUM_INITIAL_INSTRUCTIONS    (NUM_REGISTERS * NUM_REGISTERS)
 #define MIN_NUM_INSTRUCTIONS        16
 #define MAX_NUM_INSTRUCTIONS        1024
-#define MUTATION_RATE               0.2
-
 
 class Symbiont {
 
@@ -37,10 +35,7 @@ class Symbiont {
         void initializeInstructions();
         void executeInstruction(Instruction& instruction, const std::vector<float> &input);
 
-        // Class constants and objects
-        static const int source_mod_value[2];
-
-        int max_source_range;
+        int source_mod_value[2];
 
         // Primary GP components
         int                      action;
@@ -48,7 +43,14 @@ class Symbiont {
         std::vector<Instruction> instructions;
 
         // Variation operations
-        void mutate();
+        void mutate(float prob_delete,
+                    float prob_add,
+                    float prob_mutate,
+                    float prob_swap);
+        void deleteRandomInstruction(float prob_delete);
+        void addRandomInstruction(float prob_add);
+        void mutateRandomInstruction(float prob_mutate);
+        void swapRandomInstructions(float prob_swap);
         void mutateAction(int num_actions);
 };
 

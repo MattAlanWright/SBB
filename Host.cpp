@@ -64,7 +64,10 @@ void Host::mutateHost(float prob_symbiont_mutation, float prob_symbtiont_action_
             symbionts[i] = s_prime;
 
             // Mutate s_prime
-            s_prime->mutate();
+            s_prime->mutate(PROB_SYMB_DEL_INST,
+                            PROB_SYMB_ADD_INST,
+                            PROB_SYMB_MUT_INST,
+                            PROB_SYMB_SWP_INST);
 
             // Add new Symbiont to S_prime population
             S_prime.push_back(s_prime);
