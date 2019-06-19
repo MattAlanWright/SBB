@@ -1,3 +1,6 @@
+#ifndef __IRIS_HPP
+#define __IRIS_HPP
+
 #include "csv.h"
 
 // shuffle algorithm example
@@ -82,6 +85,7 @@ public:
 
         test_X.insert(test_X.begin(), data.begin() + num_training_samples, data.end());
         test_y.insert(test_y.begin(), labels.begin() + num_training_samples, labels.end());
-
     }
 };
+
+#endif //__IRIS_HPP
