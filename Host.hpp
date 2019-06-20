@@ -65,6 +65,7 @@ public:
     void addSymbionts(float prob_symbiont_addition);
     void mutateHost(float prob_symbiont_mutation, float prob_symbtiont_action_mutation);
 
+
     //////////////////////////////////////////////////////////
     // Static Symbiont Populations
 

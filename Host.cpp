@@ -6,7 +6,7 @@
 #include "random.hpp"
 using Random = effolkronium::random_static;
 
-// Symbiont population
+// Symbiont populations
 std::vector<Symbiont*> Host::S;
 std::vector<Symbiont*> Host::S_prime;
 

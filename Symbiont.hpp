@@ -24,34 +24,42 @@ using Random = effolkronium::random_static;
 
 class Symbiont {
 
-    public:
-        Symbiont(int action = -1);
+public:
 
-        // Evaluation and training methods
-        float bid(const std::vector<float> &input);
+    Symbiont(int action = -1);
 
-        bool is_referenced;
+    //////////////////////////////////////////////////////////
+    // Data members
 
-        void initializeInstructions();
-        void executeInstruction(Instruction& instruction, const std::vector<float> &input);
+    int source_mod_value[2];
 
-        int source_mod_value[2];
+    // Primary GP components
+    int                      action;
+    std::vector<float>       registers;
+    std::vector<Instruction> instructions;
 
-        // Primary GP components
-        int                      action;
-        std::vector<float>       registers;
-        std::vector<Instruction> instructions;
+    bool is_referenced;
 
-        // Variation operations
-        void mutate(float prob_delete,
-                    float prob_add,
-                    float prob_mutate,
-                    float prob_swap);
-        void deleteRandomInstruction(float prob_delete);
-        void addRandomInstruction(float prob_add);
-        void mutateRandomInstruction(float prob_mutate);
-        void swapRandomInstructions(float prob_swap);
-        void mutateAction(int num_actions);
+
+    //////////////////////////////////////////////////////////
+    // Instance methods
+
+    // Evaluation and training methods
+    float bid(const std::vector<float> &input);
+
+    void initializeInstructions();
+    void executeInstruction(Instruction& instruction, const std::vector<float> &input);
+
+    // Variation operations
+    void mutate(float prob_delete,
+                float prob_add,
+                float prob_mutate,
+                float prob_swap);
+    void deleteRandomInstruction(float prob_delete);
+    void addRandomInstruction(float prob_add);
+    void mutateRandomInstruction(float prob_mutate);
+    void swapRandomInstructions(float prob_swap);
+    void mutateAction(int num_actions);
 };
 
 #endif //_PROGRAM_H
