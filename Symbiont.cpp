@@ -10,6 +10,10 @@ float sigmoid(float z) {
    return 1.0 / (1.0 + exp(-z));
 }
 
+float clamp(float value, float min, float max) {
+    return std::max(std::min(value, max), min);
+}
+
 Symbiont::Symbiont(int action)
     : action(action),
       is_referenced(false),
@@ -163,5 +167,6 @@ void Symbiont::executeInstruction(Instruction& instruction, const std::vector<fl
     }
 
     // Safeguard against overflows, NaNa, Infs, etc.
-    registers[target_index] = std::clamp(val, MIN_REGISTER_VAL, MAX_REGISTER_VAL);
+    registers[target_index] = clamp(val, MIN_REGISTER_VAL, MAX_REGISTER_VAL);
+
 }
