@@ -21,7 +21,7 @@ int main() {
 
     delete iris;
 
-    env.train(500);
+    env.train(100);
 
     return 0;
 }

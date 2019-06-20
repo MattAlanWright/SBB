@@ -12,15 +12,16 @@ using Random = effolkronium::random_static;
 #define PROB_ACTION_MUTATION        1//0.1
 
 
-ClassificationEnvironment::ClassificationEnvironment(int num_classes,
-                                                     int num_features,
-                                                     int num_samples,
-                                                     int p_size,
-                                                     int p_gap,
-                                                     int h_size,
-                                                     int h_gap,
-                                                     const std::vector<std::vector<float>> &X,
-                                                     const std::vector<int>                &y) :
+ClassificationEnvironment::ClassificationEnvironment(
+    int num_classes,
+    int num_features,
+    int num_samples,
+    int p_size,
+    int p_gap,
+    int h_size,
+    int h_gap,
+    const std::vector<std::vector<float>> &X,
+    const std::vector<int>                &y) :
 
     num_classes(num_classes),
     p_size(p_size),
@@ -31,8 +32,8 @@ ClassificationEnvironment::ClassificationEnvironment(int num_classes,
 {
     // Reserve space for outcome matrix
     G.resize(h_size);
-    for(int i = 0; i < h_size; i++) {
-        G[i].resize(p_size);
+    for(std::vector<int> &g_h : G) {
+        g_h.resize(p_size);
     }
 
     initializeHostPop();
@@ -57,7 +58,8 @@ void ClassificationEnvironment::train(int num_generations) {
         removeHosts();
         removePoints();
 
-        std::cout << '\r' << std::flush << "Best fitness: " << host_pop[0].fitness;
+        std::cout << '\r' << std::flush;
+        std::cout << "Hosts: " << host_pop.size() << " Points: " << point_pop.size() << " Best fitness: " << host_pop[0].fitness;
     }
 }
 
@@ -121,8 +123,8 @@ void ClassificationEnvironment::generatePoints() {
 
 
 void ClassificationEnvironment::calculateOutcomeMatrix() {
-    for( int h_index = 0; h_index < h_size; h_index++ ) {
-        for( int p_index = 0; p_index < p_size; p_index++ ) {
+    for( int h_index = 0; h_index < host_pop.size(); h_index++ ) {
+        for( int p_index = 0; p_index < point_pop.size(); p_index++ ) {
 
             Point& p        = point_pop[p_index];
             int    h_action = host_pop[h_index].act(p);
@@ -157,16 +159,16 @@ void ClassificationEnvironment::evaluatePoints() {
 
 void ClassificationEnvironment::evaluateHosts() {
 
-    for( int i = 0; i < h_size; i++ ) {
+    for( int i = 0; i < host_pop.size(); i++ ) {
         float fitness = 0.0;
-        for( int k = 0; k < p_size; k++ ) {
+        for( int k = 0; k < point_pop.size(); k++ ) {
 
-            float denominator = 0.0;
-            for( int j = 0; j < h_size; j++ ) {
+            int denominator = 0;
+            for( int j = 0; j < host_pop.size(); j++ ) {
                 denominator += G[j][k];
             }
 
-            fitness += std::pow(G[i][k] / denominator, 3);
+            fitness += std::pow((float)G[i][k] / (float)denominator, 1.0);
         }
 
         host_pop[i].fitness = fitness;

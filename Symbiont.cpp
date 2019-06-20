@@ -113,9 +113,9 @@ void Symbiont::mutateAction(int num_actions) {
 }
 
 
-float Symbiont::bid(const std::vector<float>& input) {
+float Symbiont::bid(const std::vector<float> &input) {
     // Zero out registers
-    for(int i = 0; i < NUM_REGISTERS; i++) registers[i] = 0.0;
+    for(int i = 0; i < registers.size(); i++) registers[i] = 0.0;
 
     for(Instruction instruction : instructions) {
         executeInstruction(instruction, input);
@@ -166,7 +166,7 @@ void Symbiont::executeInstruction(Instruction& instruction, const std::vector<fl
             break;
     }
 
-    // Safeguard against overflows, NaNa, Infs, etc.
+    // Safeguard against overflows, NaNs, Infs, etc.
     registers[target_index] = clamp(val, MIN_REGISTER_VAL, MAX_REGISTER_VAL);
 
 }

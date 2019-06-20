@@ -1,5 +1,5 @@
-#ifndef __PROGRAM_H
-#define __PROGRAM_H
+#ifndef _SYMBIONT_HPP
+#define _SYMBIONT_HPP
 
 #include "Instruction.hpp"
 
@@ -62,4 +62,4 @@ public:
     void mutateAction(int num_actions);
 };
 
-#endif //_PROGRAM_H
+#endif //_SYMBIONT_HPP
