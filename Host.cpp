@@ -15,9 +15,7 @@ Host::Host(int num_actions) :
     num_actions(num_actions),
     fitness(0.0)
 {
-    max_num_symbionts = Random::get<int>(0, MAX_SYMBIONTS_PER_HOST);
-    symbionts.reserve(max_num_symbionts);
-    bids.reserve(max_num_symbionts);
+    max_num_symbionts = Random::get<int>(2, MAX_SYMBIONTS_PER_HOST);
 }
 
 
@@ -25,14 +23,14 @@ void Host::initializeSymbionts() {
 
     // Create two random and unique actions
     int a1, a2;
-    a1 = a2 = Random::get<int>(0, num_actions);
+    a1 = a2 = Random::get<int>(0, num_actions - 1);
     while(a1 == a2) {
-        a2 = Random::get<int>(0, num_actions);
+        a2 = Random::get<int>(0, num_actions - 1);
     }
 
     // Create two new Symbionts with the given actions
-    Symbiont* s1 = new Symbiont(a1);
-    Symbiont* s2 = new Symbiont(a2);
+    Symbiont *s1 = new Symbiont(a1);
+    Symbiont *s2 = new Symbiont(a2);
 
     // Add to the host's list and the main population
     symbionts.push_back(s1);
@@ -49,13 +47,12 @@ void Host::mutateHost(float prob_symbiont_mutation, float prob_symbtiont_action_
 
     while( !symbiont_mutated ) {
         for( int i = 0; i < symbionts.size(); i++ ) {
-        //for( auto it = symbionts.begin(); it != symbionts.end(); it++ ) {
             if( Random::get<float>(0.0, 1.0) >= prob_symbiont_mutation ) {
                 continue;
             }
 
-            Symbiont* s       = symbionts[i];
-            Symbiont* s_prime = new Symbiont();
+            Symbiont *s       = symbionts[i];
+            Symbiont *s_prime = new Symbiont();
 
             // Copy original symbiont
             *s_prime = *s;
@@ -91,9 +88,8 @@ void Host::removeSymbionts(float prob_symbiont_removal) {
     float b = 1.0;
     while( b > Random::get<float>(0.0, 1.0) && symbionts.size() > 2 ) {
 
-        int sym_index = Random::get<int>(0, symbionts.size());
-        Symbiont *s = symbionts[sym_index];
-        delete symbionts[sym_index];
+        int sym_index = Random::get<int>(0, symbionts.size() - 1);
+        symbionts.erase(symbionts.begin() + sym_index);
         b *= prob_symbiont_removal;
     }
 
@@ -104,7 +100,7 @@ void Host::addSymbionts(float prob_symbiont_addition) {
 
     float b = 1.0;
     while( b > Random::get<float>(0.0, 1.0) && symbionts.size() < max_num_symbionts ) {
-        int pop_index = Random::get<int>(0, S.size());
+        int pop_index = Random::get<int>(0, S.size() - 1);
         Symbiont *s = S[pop_index];
         symbionts.push_back(s);
 
@@ -116,7 +112,7 @@ void Host::addSymbionts(float prob_symbiont_addition) {
 int Host::act(const Point& p) {
 
     // Allow each Symbiont to act on the data point
-    bids.clear();
+    std::vector<float> bids;
     for(int i = 0; i < symbionts.size(); i++) {
         float bid = symbionts[i]->bid(p.X);
         bids.push_back(bid);

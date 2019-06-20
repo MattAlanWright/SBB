@@ -21,20 +21,21 @@ enum IrisClasses {
     VIRGINIA
 };
 
+
 class IrisDataset {
 
 public:
-    static const int num_training_samples = 112;
-    static const int num_test_samples     = 38;
-    static const int num_samples          = 150;
-    static const int num_classes          = 3;
-    static const int num_inputs           = 4;
+    const int num_training_samples = 112;
+    const int num_test_samples     = 38;
+    const int num_samples          = 150;
+    const int num_classes          = 3;
+    const int num_features         = 4;
 
-    std::vector< std::vector<float > train_X;
-    std::vector< std::vector<int> >  train_y;
+    std::vector< std::vector<float> > train_X;
+    std::vector<int>                  train_y;
 
-    std::vector< std::vector<float > test_X;
-    std::vector< std::vector<int> >  test_y;
+    std::vector< std::vector<float> > test_X;
+    std::vector<int>                  test_y;
 
     IrisDataset() {
 
@@ -49,6 +50,7 @@ public:
         std::vector<int>                  labels;
 
         io::CSVReader<5> in("iris.data");
+
 
         while( in.read_row(sepal_length,
                            sepal_width,

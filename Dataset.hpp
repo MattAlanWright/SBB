@@ -25,7 +25,7 @@ public:
     std::vector< std::vector<Point> > dataset;
 
     Point getRandomExemplar();
-    void insertPoint(Point p);
+    void insertPoint(const Point &p);
 };
 
 #endif //_DATA_HPP

@@ -17,7 +17,7 @@ Symbiont::Symbiont(int action)
       source_mod_value {NUM_REGISTERS, NUM_INPUTS}
 {
     // If action not specified, select at random
-    if( action == -1 ) action = Random::get<int>(0, NUM_CLASSES);
+    if( action == -1 ) action = Random::get<int>(0, NUM_CLASSES - 1);
 
     // Reserve space in vectors for maximum number of possible instructions
     instructions.reserve(MAX_NUM_INSTRUCTIONS);
@@ -54,7 +54,7 @@ void Symbiont::deleteRandomInstruction(float prob_delete) {
         return;
     }
 
-    int random_instruction_index = Random::get<int>(0, instructions.size());
+    int random_instruction_index = Random::get<int>(0, instructions.size() - 1);
     instructions.erase(instructions.begin() + random_instruction_index);
 }
 
@@ -67,7 +67,7 @@ void Symbiont::addRandomInstruction(float prob_add) {
     Instruction new_instruction;
     new_instruction.randomize();
 
-    int random_instruction_index = Random::get<int>(0, instructions.size());
+    int random_instruction_index = Random::get<int>(0, instructions.size() - 1);
     instructions.insert(instructions.begin() + random_instruction_index, new_instruction);
 }
 
@@ -77,8 +77,8 @@ void Symbiont::mutateRandomInstruction(float prob_mutate) {
         return;
     }
 
-    int random_instruction_index = Random::get<int>(0, instructions.size());
 
+    int random_instruction_index = Random::get<int>(0, instructions.size() - 1);
     instructions[random_instruction_index].toggleRandomBit();
 }
 
@@ -89,9 +89,9 @@ void Symbiont::swapRandomInstructions(float prob_swap) {
     }
 
     int i1, i2;
-    i1 = i2 = Random::get<int>(0, instructions.size());
+    i1 = i2 = Random::get<int>(0, instructions.size() - 1);
     while(i1 == i2) {
-        i2 = Random::get<int>(0, instructions.size());
+        i2 = Random::get<int>(0, instructions.size() - 1);
     }
 
     Instruction temp = instructions[i1];
@@ -103,7 +103,7 @@ void Symbiont::swapRandomInstructions(float prob_swap) {
 void Symbiont::mutateAction(int num_actions) {
     int new_action = action;
     while(new_action == action) {
-        new_action = Random::get<int>(0, num_actions);
+        new_action = Random::get<int>(0, num_actions - 1);
     }
     action = new_action;
 }
@@ -163,5 +163,5 @@ void Symbiont::executeInstruction(Instruction& instruction, const std::vector<fl
     }
 
     // Safeguard against overflows, NaNa, Infs, etc.
-    //registers[target_index] = std::clamp(val, MIN_REGISTER_VAL, MAX_REGISTER_VAL);
+    registers[target_index] = std::clamp(val, MIN_REGISTER_VAL, MAX_REGISTER_VAL);
 }

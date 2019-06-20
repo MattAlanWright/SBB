@@ -3,3 +3,9 @@
 
 # Precompiled headers
 *.gch
+
+# Compiled program
+sbb
+
+# MacOS artifact
+.DS_Store

@@ -1,7 +1,7 @@
 #ifndef _HOST_H
 #define _HOST_H
 
-#define MAX_SYMBIONTS_PER_HOST 64
+#define MAX_SYMBIONTS_PER_HOST 10
 #define MAX_SYMBIONT_POP_SIZE  1024
 
 #define PROB_SYMB_DEL_INST     0.1
@@ -20,19 +20,15 @@ public:
 
     Host(int num_actions);
 
-    void operator= (const Host &other);
-
     void initializeSymbionts();
 
     void mutateHost(float prob_symbiont_mutation, float prob_symbtiont_action_mutation);
 
-    int act(const Point& p);
+    int act(const Point &p);
 
     float fitness;
 
     int num_actions;
-
-    std::vector<float> bids;
 
     int max_num_symbionts;
     std::vector<Symbiont*> symbionts;

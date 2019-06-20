@@ -1,5 +1,7 @@
 #include "Dataset.hpp"
 
+#include <iostream>
+
 // Effolkronium random library
 #include "random.hpp"
 using Random = effolkronium::random_static;
@@ -13,11 +15,11 @@ Dataset::Dataset(const std::vector< std::vector<float> > &X,
       num_features(num_features),
       num_samples(num_samples)
 {
-    dataset.resize(num_samples);
+    dataset.resize(num_classes);
 
     for(int i = 0; i < num_samples; i++) {
         // y[i] = Integer class label
-        // X[i] = std::vector<float> of featurs
+        // X[i] = std::vector<float> of feature
         Point p(X[i], y[i]);
 
         dataset[y[i]].push_back(p);
@@ -30,7 +32,7 @@ Point Dataset::getRandomExemplar() {
     int c = -1;
     while(c == -1) {
         // Get a random class
-        int random_class_index = Random::get<int>(0, num_classes);
+        int random_class_index = Random::get<int>(0, num_classes - 1);
 
         // Check to see if any Points under that class remain in the dataset.
         // If so, that's our class: assign it to c.
@@ -40,7 +42,7 @@ Point Dataset::getRandomExemplar() {
     }
 
     // Get a random exemplar of that class
-    int random_point_index = Random::get<int>(0, dataset[c].size());
+    int random_point_index = Random::get<int>(0, dataset[c].size() - 1);
 
     Point p = dataset[c][random_point_index];
 
@@ -51,7 +53,7 @@ Point Dataset::getRandomExemplar() {
 }
 
 
-void Dataset::insertPoint(Point p) {
+void Dataset::insertPoint(const Point &p) {
 
     dataset[p.y].push_back(p);
 

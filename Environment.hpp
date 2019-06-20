@@ -17,8 +17,8 @@ public:
                               int p_gap,
                               int h_size,
                               int h_gap,
-                              std::vector<std::vector<float>> &X,
-                              std::vector<int>                &y);
+                              const std::vector<std::vector<float>> &X,
+                              const std::vector<int>                &y);
 
     Dataset            dataset;
     std::vector<Point> point_pop;

@@ -6,10 +6,10 @@
 #include "random.hpp"
 using Random = effolkronium::random_static;
 
-#define PROB_SYMBIONT_ADDITION      0.2
-#define PROB_SYMBIONT_REMOVAL       0.2
-#define PROB_SYMBIONT_MUTATION      0.1
-#define PROB_ACTION_MUTATION        0.1
+#define PROB_SYMBIONT_ADDITION      0.1
+#define PROB_SYMBIONT_REMOVAL       0.1
+#define PROB_SYMBIONT_MUTATION      1//0.1
+#define PROB_ACTION_MUTATION        1//0.1
 
 
 ClassificationEnvironment::ClassificationEnvironment(int num_classes,
@@ -19,8 +19,8 @@ ClassificationEnvironment::ClassificationEnvironment(int num_classes,
                                                      int p_gap,
                                                      int h_size,
                                                      int h_gap,
-                                                     std::vector<std::vector<float>> &X,
-                                                     std::vector<int>                &y) :
+                                                     const std::vector<std::vector<float>> &X,
+                                                     const std::vector<int>                &y) :
 
     num_classes(num_classes),
     p_size(p_size),
@@ -97,7 +97,7 @@ void ClassificationEnvironment::generateHosts() {
     for( int i = 0; i < h_gap; i++ ) {
 
         // Choose a random host
-        int random_host_index = Random::get<int>(0, h_size);
+        int random_host_index = Random::get<int>(0, (h_size - h_gap) - 1);
 
         // Create a copy of the Host with references to Symbionts
         Host h = host_pop[random_host_index];
@@ -182,6 +182,10 @@ void ClassificationEnvironment::removePoints() {
     });
 
     // Remove the p_gap lowest ones
+    int p_keep = p_size - p_gap;
+    for(int i = p_keep; i < p_size; i++) {
+        dataset.insertPoint(point_pop[i]);
+    }
     point_pop.erase(point_pop.begin() + (p_size - p_gap), point_pop.end());
 }
 
