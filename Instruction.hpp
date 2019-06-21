@@ -63,19 +63,19 @@ struct Instruction {
 
     inline Instruction() { packed_instruction = 0; }
 
-    inline int getMode() {
+    inline int getMode() const {
         return (packed_instruction >> mode_shift) & mode_mask;
     }
 
-    inline int getTarget() {
+    inline int getTarget() const {
         return (packed_instruction >> target_shift) & target_mask;
     }
 
-    inline int getOp() {
+    inline int getOp() const {
         return (packed_instruction >> op_shift) & op_mask;
     }
 
-    inline int getSource() {
+    inline int getSource() const {
         return packed_instruction & source_mask;
     }
 

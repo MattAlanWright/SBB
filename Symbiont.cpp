@@ -125,7 +125,8 @@ float Symbiont::bid(const std::vector<float> &input) {
 }
 
 
-void Symbiont::executeInstruction(Instruction& instruction, const std::vector<float>& input) {
+void Symbiont::executeInstruction(const Instruction& instruction,
+                                  const std::vector<float>& input) {
 
     int mode         = instruction.getMode();
     int target_index = instruction.getTarget();

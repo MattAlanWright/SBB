@@ -48,7 +48,8 @@ public:
     float bid(const std::vector<float> &input);
 
     void initializeInstructions();
-    void executeInstruction(Instruction& instruction, const std::vector<float> &input);
+    void executeInstruction(const Instruction& instruction,
+                            const std::vector<float> &input);
 
     // Variation operations
     void mutate(float prob_delete,
