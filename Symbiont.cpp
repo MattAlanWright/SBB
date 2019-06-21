@@ -54,7 +54,7 @@ void Symbiont::mutate(float prob_delete,
 
 
 void Symbiont::deleteRandomInstruction(float prob_delete) {
-    if( Random::get<float>(0.0, 1.0) > prob_delete ) {
+    if( Random::get<float>(0.0, 1.0) > prob_delete && instructions.size() > MIN_NUM_INSTRUCTIONS ) {
         return;
     }
 
@@ -64,7 +64,7 @@ void Symbiont::deleteRandomInstruction(float prob_delete) {
 
 
 void Symbiont::addRandomInstruction(float prob_add) {
-    if( Random::get<float>(0.0, 1.0) > prob_add ) {
+    if( Random::get<float>(0.0, 1.0) > prob_add && instructions.size() < MAX_NUM_INSTRUCTIONS ) {
         return;
     }
 
@@ -117,7 +117,7 @@ float Symbiont::bid(const std::vector<float> &input) {
     // Zero out registers
     for(int i = 0; i < registers.size(); i++) registers[i] = 0.0;
 
-    for(Instruction instruction : instructions) {
+    for(const Instruction &instruction : instructions) {
         executeInstruction(instruction, input);
     }
 
