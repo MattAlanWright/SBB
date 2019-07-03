@@ -14,14 +14,19 @@ float clamp(float value, float min, float max) {
     return std::max(std::min(value, max), min);
 }
 
-Symbiont::Symbiont(int action)
+Symbiont::Symbiont(int action,
+                   int num_registers,
+                   int num_actions,
+                   int num_inputs)
     : action(action),
+      num_registers(num_registers),
+      num_actions(num_actions),
+      registers(num_registers),
       is_referenced(false),
-      registers(NUM_REGISTERS),
-      source_mod_value {NUM_REGISTERS, NUM_INPUTS}
+      source_mod_value {num_registers, num_inputs}
 {
     // If action not specified, select at random
-    if( action == -1 ) action = Random::get<int>(0, NUM_CLASSES - 1);
+    if( action == -1 ) action = Random::get<int>(0, num_actions - 1);
 
     // Reserve space in vectors for maximum number of possible instructions
     instructions.reserve(MAX_NUM_INSTRUCTIONS);
@@ -32,23 +37,20 @@ Symbiont::Symbiont(int action)
 
 
 void Symbiont::initializeInstructions() {
+    int num_initial_instructions = num_registers * num_registers;
     Instruction instruction;
-    for(int i = 0; i < NUM_INITIAL_INSTRUCTIONS; i++) {
+    for(int i = 0; i < num_initial_instructions; i++) {
         instruction.randomize();
         instructions.push_back(instruction);
     }
  }
 
 
-void Symbiont::mutate(float prob_delete,
-                      float prob_add,
-                      float prob_mutate,
-                      float prob_swap)
-{
-    deleteRandomInstruction(prob_delete);
-    addRandomInstruction(prob_add);
-    mutateRandomInstruction(prob_mutate);
-    swapRandomInstructions(prob_swap);
+void Symbiont::mutate() {
+    deleteRandomInstruction(PROB_DEL_INST);
+    addRandomInstruction(PROB_ADD_INST);
+    mutateRandomInstruction(PROB_MUT_INST);
+    swapRandomInstructions(PROB_SWP_INST);
 
 }
 

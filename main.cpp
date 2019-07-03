@@ -13,9 +13,8 @@ int main() {
         iris->num_features,
         iris->num_training_samples,
         100,
-        0,
-        150,
-        50,
+        70,
+        iris->num_training_samples,
         iris->train_X,
         iris->train_y);
 

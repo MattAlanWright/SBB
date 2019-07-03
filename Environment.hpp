@@ -3,7 +3,7 @@
 
 #include "Point.hpp"
 #include "Host.hpp"
-#include "Dataset.hpp"
+#include "UniformDataset.hpp"
 
 #include <vector>
 
@@ -13,50 +13,37 @@ public:
     ClassificationEnvironment(int num_classes,
                               int num_features,
                               int num_samples,
-                              int p_size,
-                              int p_gap,
                               int h_size,
                               int h_gap,
+                              int tau,
                               const std::vector<std::vector<float>> &X,
                               const std::vector<int>                &y);
 
-    Dataset            dataset;
-    std::vector<Point> point_pop;
-    std::vector<Host>  host_pop;
+    UniformDataset dataset;
+
+    int num_classes;
+    int tau;
+    int h_size;
+    int h_gap;
 
     // Core training alorithm
     void train(int num_generations);
 
-    // Outcome matrix. Recalculated each generation
-    std::vector< std::vector<int> > G;
-
     // Initialization
-    void initializeHostPop();
-    void initializePointPop();
+    std::vector<Host> initializeHostPop();
 
     // Population generation
-    void generateHosts();
-    void generatePoints();
-
-    // Let the Hosts bid on the Points and store the results
-    void calculateOutcomeMatrix();
+    void generateHosts(std::vector<Host> &host_pop);
+    std::vector<Point> generatePoints();
 
     // Evaluation methods
     void evaluateHosts();
-    void evaluatePoints();
 
     // Remove lowest performing individuals
-    void removeHosts();
-    void removePoints();
+    void removeHosts(std::vector<Host> &);
 
     // Clean up Symbiont population
-    void cleanSymbiontPopulation();
-
-    int num_classes;
-    int p_size;
-    int p_gap;
-    int h_size;
-    int h_gap;
+    void cleanSymbiontPopulation(std::vector<Host> &host_pop);
 };
 
 #endif //_ENVIRONMENT_HPP

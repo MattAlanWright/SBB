@@ -1,13 +1,8 @@
 #ifndef _HOST_H
 #define _HOST_H
 
-#define MAX_SYMBIONTS_PER_HOST 10
+#define MAX_SYMBIONTS_PER_HOST 64
 #define MAX_SYMBIONT_POP_SIZE  1024
-
-#define PROB_SYMB_DEL_INST     0.1
-#define PROB_SYMB_ADD_INST     0.1
-#define PROB_SYMB_MUT_INST     0.1
-#define PROB_SYMB_SWP_INST     0.1
 
 #include "Symbiont.hpp"
 #include "Point.hpp"
@@ -18,7 +13,9 @@ class Host {
 
 public:
 
-    Host(int num_actions);
+    Host(int num_actions   =  3,
+         int num_registers =  8,
+         int num_inputs    =  4);
 
     //////////////////////////////////////////////////////////
     // Data members
@@ -30,6 +27,10 @@ public:
     // Analogous to the number of classes. This is the upper
     // bound (not inclusive) on possible action values.
     int num_actions;
+
+    // Symbiont properties
+    int num_registers;
+    int num_inputs;
 
     // Stochastically chosen maximum number of possible Symbionts
     // in the host.
@@ -45,7 +46,7 @@ public:
 
     // Primary classification method. Returns the predicted
     // class label of the Point p.
-    int act(const Point &p);
+    int act(const std::vector<float> &X);
 
     // Create two unique Symbionts, added to both the static
     // Symbiont population and the host's own symbiont list.

@@ -16,55 +16,75 @@ ClassificationEnvironment::ClassificationEnvironment(
     int num_classes,
     int num_features,
     int num_samples,
-    int p_size,
-    int p_gap,
     int h_size,
     int h_gap,
+    int tau,
     const std::vector<std::vector<float>> &X,
     const std::vector<int>                &y) :
 
     num_classes(num_classes),
-    p_size(p_size),
-    p_gap(p_gap),
     h_size(h_size),
     h_gap(h_gap),
-    dataset(X, y, num_classes, num_features, num_samples)
-{
+    tau(tau),
+    dataset(X, y) {}
+
+
+void
+ClassificationEnvironment::train(int num_generations) {
+
     // Reserve space for outcome matrix
+    std::vector< std::vector<float> > G;
     G.resize(h_size);
-    for(std::vector<int> &g_h : G) {
-        g_h.resize(p_size);
+    for( int i = 0; i < G.size(); i++ ) {
+        G[i].resize(tau);
     }
 
-    initializeHostPop();
-    initializePointPop();
-}
-
-
-void ClassificationEnvironment::train(int num_generations) {
+    std::vector<Host> hosts = initializeHostPop();
 
     for(int t = 0; t < num_generations; t++) {
 
+        // Generate new batch of Hosts
+        generateHosts(hosts);
+
         // Generate new individuals
-        generatePoints();
-        generateHosts();
+        std::vector<Point> points = generatePoints();
 
-        // Evaluate all hosts on all points
-        calculateOutcomeMatrix();
-        evaluatePoints();
-        evaluateHosts();
+        // Calculate the outcome of each Learner on each Point
+        for( int i = 0; i < h_size; i++ ) {
+            for( int k = 0; k < tau; k++ ) {
+                float action = hosts[i].act(points[k].X);
+                if( action == points[k].y ) {
+                    G[i][k] = 1.0;
+                } else {
+                    G[i][k] = 0.0;
+                }
+            }
+        }
 
-        // Remove low-performing points and hosts
-        removeHosts();
-        removePoints();
+        // Sum across rows of G to calculate fitness
+        for( int i = 0; i < h_size; i++ ) {
+            hosts[i].fitness = 0.0;
+            for( int k = 0; k < tau; k++ ) {
+                hosts[i].fitness += G[i][k];
+            }
+        }
+
+        removeHosts(hosts);
+
+        cleanSymbiontPopulation(hosts);
 
         std::cout << '\r' << std::flush;
-        std::cout << "Hosts: " << host_pop.size() << " Points: " << point_pop.size() << " Best fitness: " << host_pop[0].fitness;
+        std::cout << "Generation: " << t << " Hosts: " << hosts.size() << " Points: " << points.size() << " Best fitness: " << hosts[0].fitness;
     }
+
+    std::cout << std::endl;
 }
 
 
-void ClassificationEnvironment::initializeHostPop() {
+std::vector<Host>
+ClassificationEnvironment::initializeHostPop() {
+
+    std::vector<Host> host_pop;
 
     // 1. Reserve space for h_size hosts
     host_pop.reserve(h_size);
@@ -78,23 +98,17 @@ void ClassificationEnvironment::initializeHostPop() {
 
     // 3. Fill out the hosts with references to other Symbionts
     // Step 2 must have already taken place to ensure the full
-    // Symbiont population exists.
-    for(Host& h : host_pop) {
-        h.addSymbionts(PROB_SYMBIONT_ADDITION);
+    // Symbiont population exists to sample.
+    for(Host &host : host_pop) {
+        host.addSymbionts(PROB_SYMBIONT_ADDITION);
     }
+
+    return host_pop;
 }
 
 
-void ClassificationEnvironment::initializePointPop() {
-
-    for( int i = 0; i < (p_size - p_gap); i++ ) {
-        Point p = dataset.getRandomExemplar();
-        point_pop.push_back(p);
-    }
-}
-
-
-void ClassificationEnvironment::generateHosts() {
+void
+ClassificationEnvironment::generateHosts(std::vector<Host> &host_pop) {
 
     for( int i = 0; i < h_gap; i++ ) {
 
@@ -113,50 +127,12 @@ void ClassificationEnvironment::generateHosts() {
 }
 
 
-void ClassificationEnvironment::generatePoints() {
-
-    for( int i = 0; i < p_gap; i++ ) {
-        Point p = dataset.getRandomExemplar();
-        point_pop.push_back(p);
-    }
+std::vector<Point>
+ClassificationEnvironment::generatePoints() {
+    return dataset.getRandomExemplars(tau);
 }
 
-
-void ClassificationEnvironment::calculateOutcomeMatrix() {
-    for( int h_index = 0; h_index < host_pop.size(); h_index++ ) {
-        for( int p_index = 0; p_index < point_pop.size(); p_index++ ) {
-
-            Point& p        = point_pop[p_index];
-            int    h_action = host_pop[h_index].act(p);
-
-            if( h_action == p.y ) {
-                G[h_index][p_index] = 1;
-            } else {
-                G[h_index][p_index] = 0;
-            }
-        }
-    }
-}
-
-
-void ClassificationEnvironment::evaluatePoints() {
-
-    std::vector<float> c(point_pop.size());
-
-    for( int k = 0; k < p_size; k++ ) {
-        for( int i = 0; i < h_size; i++ ) {
-            c[k] += G[i][k];
-        }
-
-        if(c[k] > 0) {
-            point_pop[k].fitness = 1.0 + (1.0 - c[k])/h_size;
-        } else {
-            point_pop[k].fitness = 0.0;
-        }
-    }
-}
-
-
+/*
 void ClassificationEnvironment::evaluateHosts() {
 
     for( int i = 0; i < host_pop.size(); i++ ) {
@@ -174,25 +150,11 @@ void ClassificationEnvironment::evaluateHosts() {
         host_pop[i].fitness = fitness;
     }
 }
+*/
 
 
-void ClassificationEnvironment::removePoints() {
-
-    // Sort points from highest to lowest fitness
-    std::sort(point_pop.begin(), point_pop.end(), [](Point& a, Point& b) {
-        return a.fitness > b.fitness;
-    });
-
-    // Remove the p_gap lowest ones
-    int p_keep = p_size - p_gap;
-    for(int i = p_keep; i < p_size; i++) {
-        dataset.insertPoint(point_pop[i]);
-    }
-    point_pop.erase(point_pop.begin() + (p_size - p_gap), point_pop.end());
-}
-
-
-void ClassificationEnvironment::removeHosts() {
+void
+ClassificationEnvironment::removeHosts(std::vector<Host> &host_pop) {
 
     // Sort hosts from highest to lowest fitness
     std::sort(host_pop.begin(), host_pop.end(), [](Host& a, Host& b) {
@@ -205,7 +167,8 @@ void ClassificationEnvironment::removeHosts() {
 }
 
 
-void ClassificationEnvironment::cleanSymbiontPopulation() {
+void
+ClassificationEnvironment::cleanSymbiontPopulation(std::vector<Host> &host_pop) {
     Host::resetSymbiontPopulationRefs();
     for(Host& h : host_pop) {
         h.updateSymbiontRefs();
