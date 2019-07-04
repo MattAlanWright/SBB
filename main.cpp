@@ -16,11 +16,13 @@ int main() {
         70,
         iris->num_training_samples,
         iris->train_X,
-        iris->train_y);
+        iris->train_y,
+        iris->test_X,
+        iris->test_y);
 
     delete iris;
 
-    env.train(100);
+    env.train(1000);
 
     return 0;
 }

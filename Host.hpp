@@ -66,6 +66,13 @@ public:
     void addSymbionts(float prob_symbiont_addition);
     void mutateHost(float prob_symbiont_mutation, float prob_symbtiont_action_mutation);
 
+    // Evaluation methods
+    float accuracy(const std::vector< std::vector<float> > &X,
+                   const std::vector<int> &y);
+
+    float accuracy(const std::vector<Point> points);
+
+    float detectionRate(const std::vector<Point> points);
 
     //////////////////////////////////////////////////////////
     // Static Symbiont Populations

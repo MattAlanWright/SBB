@@ -16,10 +16,13 @@ public:
                               int h_size,
                               int h_gap,
                               int tau,
-                              const std::vector<std::vector<float>> &X,
-                              const std::vector<int>                &y);
+                              const std::vector<std::vector<float>> &train_X,
+                              const std::vector<int>                &train_y,
+                              const std::vector<std::vector<float>> &test_X,
+                              const std::vector<int>                &test_y);
 
     UniformDataset dataset;
+    UniformDataset test_set;
 
     int num_classes;
     int tau;
@@ -44,6 +47,7 @@ public:
 
     // Clean up Symbiont population
     void cleanSymbiontPopulation(std::vector<Host> &host_pop);
+
 };
 
 #endif //_ENVIRONMENT_HPP

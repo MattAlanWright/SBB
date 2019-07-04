@@ -19,14 +19,17 @@ ClassificationEnvironment::ClassificationEnvironment(
     int h_size,
     int h_gap,
     int tau,
-    const std::vector<std::vector<float>> &X,
-    const std::vector<int>                &y) :
+    const std::vector<std::vector<float>> &train_X,
+    const std::vector<int>                &train_y,
+    const std::vector<std::vector<float>> &test_X,
+    const std::vector<int>                &test_y) :
 
     num_classes(num_classes),
     h_size(h_size),
     h_gap(h_gap),
     tau(tau),
-    dataset(X, y) {}
+    dataset(train_X, train_y),
+    test_set(test_X, test_y) {}
 
 
 void
@@ -62,6 +65,19 @@ ClassificationEnvironment::train(int num_generations) {
         }
 
         // Sum across rows of G to calculate fitness
+        std::vector<float> denom(G[0].size(), 0.0);
+        for( int k = 0; k < tau; k++ ) {
+            for( int i = 0; i < h_size; i++ ) {
+                denom[k] += G[i][k];
+            }
+        }
+
+        for( int k = 0; k < tau; k++ ) {
+            for( int i = 0; i < h_size; i++ ) {
+                G[i][k] /= denom[k];
+            }
+        }
+
         for( int i = 0; i < h_size; i++ ) {
             hosts[i].fitness = 0.0;
             for( int k = 0; k < tau; k++ ) {
@@ -74,10 +90,17 @@ ClassificationEnvironment::train(int num_generations) {
         cleanSymbiontPopulation(hosts);
 
         std::cout << '\r' << std::flush;
-        std::cout << "Generation: " << t << " Hosts: " << hosts.size() << " Points: " << points.size() << " Best fitness: " << hosts[0].fitness;
+        std::cout << "Generation: " << t <<
+                     " Accuracy: " << hosts[0].accuracy(points) <<
+                     " Recall: " << hosts[0].detectionRate(points);
     }
 
     std::cout << std::endl;
+
+    std::cout << "Training accuracy: " << hosts[0].accuracy(dataset.dataset) << std::endl;
+    std::cout << "Training recall: " << hosts[0].detectionRate(dataset.dataset) << std::endl;
+    std::cout << "Test accuracy: " << hosts[0].accuracy(test_set.dataset) << std::endl;
+    std::cout << "Test recall: " << hosts[0].detectionRate(test_set.dataset) << std::endl;
 }
 
 

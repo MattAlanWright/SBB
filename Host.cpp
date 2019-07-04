@@ -126,6 +126,65 @@ void Host::addSymbionts(float prob_symbiont_addition) {
 }
 
 
+float Host::accuracy(const std::vector< std::vector<float> > &X,
+                     const std::vector<int> &y) {
+
+    // Ensure dataset is valid
+    if( X.size() != y.size() ) {
+        std::cout << "Host::accuracy - Error - X and y are of unequal lengths" << std::endl;
+    }
+
+    // Act on each exemplar and compare to the true label
+    float num_correct = 0.0;
+    for( int i = 0; i < X.size(); i++ ) {
+        int action = act(X[i]);
+        if( action == y[i]) num_correct += 1.0;
+    }
+
+    return num_correct / X.size();
+}
+
+
+float Host::accuracy(const std::vector<Point> points) {
+
+    // Act on each exemplar and compare to the true label
+    float num_correct = 0.0;
+    for( const Point &point : points ) {
+        int action = act(point.X);
+        if( action == point.y) num_correct += 1.0;
+    }
+
+    return num_correct / points.size();
+}
+
+
+float Host::detectionRate(const std::vector<Point> points) {
+    float detection_rate = 0.0;
+
+    std::vector<int> true_positives(num_actions, 0);
+    std::vector<int> false_negatives(num_actions, 0);
+
+    for( const Point &point : points ) {
+        int action = act(point.X);
+        if( action == point.y ) {
+            true_positives[point.y]++;
+        } else {
+            false_negatives[point.y]++;
+        }
+    }
+
+    for( int i = 0; i < num_actions; i++ ) {
+        if( true_positives[i] == 0 ) {
+            detection_rate += 0;
+        } else {
+            detection_rate += (float)true_positives[i] / (float)(true_positives[i] + false_negatives[i]);
+        }
+    }
+
+    return detection_rate / num_actions;
+}
+
+
 int Host::act(const std::vector<float> &X) {
 
     // Allow each Symbiont to act on the data point
