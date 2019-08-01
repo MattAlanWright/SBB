@@ -49,7 +49,7 @@ public:
         std::vector< std::vector<float> > data;
         std::vector<int>                  labels;
 
-        io::CSVReader<5> in("iris.data");
+        io::CSVReader<5> in("iris-normalized.data");
 
 
         while( in.read_row(sepal_length,
